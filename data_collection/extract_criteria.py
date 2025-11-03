@@ -1,6 +1,5 @@
 # Databricks notebook source
-DEST_FOLDER = "data/"
-
+DEST_TABLE = 'prd_mega.sprocu92.criteria'
 
 # COMMAND ----------
 
@@ -41,7 +40,7 @@ try:
     response.raise_for_status()  # Raise an exception for bad status codes
     
     # Parse the JSON response
-    data = response.json()
+    data = response.content.decode("utf-8")
     
     print(f"API call successful!")
     print(f"Response status code: {response.status_code}")
@@ -56,14 +55,13 @@ try:
         print("Response is not a list, storing as raw data")
         df = pd.json_normalize(data)
     
-    # Save to CSV
-    output_file = "data/mvi_criteria.csv"
-    df.to_csv(output_file, index=False)
-    print(f"Data saved to: {output_file}")
-    
-    # Display first few rows
-    print("\nFirst 5 rows:")
-    print(df.head())
+        spark_df = spark.createDataFrame(results, schema=schema)
+
+        # Write the DataFrame to the Delta Lake path
+        spark_df.write \
+                .format("delta") \
+                .mode("append") \
+                .saveAsTable(DEST_TABLE)
     
 except requests.exceptions.RequestException as e:
     print(f"Error making API request: {e}")
