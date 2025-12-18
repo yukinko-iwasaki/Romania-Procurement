@@ -3,10 +3,9 @@ import requests
 import pandas as pd
 
 DEST_FOLDER = "/Volumes/prd_mega/sprocu92/vprocu92/Documents/raw/"
-LIST_FILE = DEST_FOLDER + "contract_list.csv"
 DEST_TABLE = 'prd_mega.sprocu92.raw_contracts'
 LIST_TABLE = 'prd_mega.sprocu92.contract_list'
-DEST_ALL_TABLE = 'prd_mega.sprocu92.raw_contracts_all'
+DEST_ALL_TABLE = 'prd_mega.sprocu92.contract_bronze'
 
 
 # COMMAND ----------
@@ -26,7 +25,7 @@ def get_payload(year):
     PAGE_SIZE = 1000
 
     payloads = {
-        "sysNoticeTypeIds": [2, 7, 12], # 2 for Notice of Participation, 7 for concession notice, 12 for Invitation to Tender
+        "sysNoticeTypeIds": [2, 7, 12], # 2 for Notice of Participation, 7 for concession notice, #12 for invitation to tender
         "sortProperties": [],
         "pageSize": PAGE_SIZE,
         "hasUnansweredQuestions": False,
@@ -142,6 +141,7 @@ http.mount("http://", adapter)
 
 
 contract_list = spark.read.table(LIST_TABLE).select(['sysNoticeTypeId', 'cNoticeId']).toPandas()
+contract_list = contract_list[contract_list['sysNoticeTypeId'].isin([2,7])] # 12 invitation to tender has different API endpoints for extracting
 contract_list.sort_values(by='cNoticeId', inplace=True)
 
 # To handle the API rate limit, adjust start_index to restart the extraction execution. 
@@ -221,4 +221,87 @@ for idx, row in enumerate(contract_list[start_index:].itertuples(), start=start_
 
 # COMMAND ----------
 
+
+
+# COMMAND ----------
+
+
+
+# COMMAND ----------
+
+
+
+# COMMAND ----------
+
+df.shape
+
+# COMMAND ----------
+
+contract_list.shape
+
+# COMMAND ----------
+
+
+
+# COMMAND ----------
+
+
+
+# COMMAND ----------
+
 df = spark.read.table(DEST_ALL_TABLE)
+contract_list = spark.read.table(LIST_TABLE).select(['sysNoticeTypeId', 'cNoticeId']).toPandas()
+contract_list = contract_list[contract_list['sysNoticeTypeId'].isin([2,7])] # 12 invitation to tender has different API endpoints for extracting
+contract_list.sort_values(by='cNoticeId', inplace=True)
+df = df.toPandas()
+df.documentId = df.documentId.astype(int)
+df2 = df[df.documentId.isin(contract_list.cNoticeId)]
+df_batch = spark.createDataFrame(df2)
+df_batch.write.mode("overwrite").saveAsTable(DEST_ALL_TABLE)
+
+# COMMAND ----------
+
+from pyspark.sql.functions import col
+
+# 1. Read the main table (stays distributed on executors)
+df = spark.read.table('prd_mega.sprocu92.raw_contracts_all')
+
+# 2. Read the list table (can be small, but keep it as Spark for now)
+#    We only need 'cNoticeId' and filter on 'sysNoticeTypeId'.
+contract_list = spark.read.table(LIST_TABLE).select('sysNoticeTypeId', 'cNoticeId')
+contract_list = contract_list.filter(col('sysNoticeTypeId').isin([2, 7]))
+
+# 3. Create the lookup list for the join (THIS IS THE CRITICAL CHANGE)
+#    Since this list is small, we collect it to the driver and BROADCAST it.
+#    If 'contract_list' is large, this step should be skipped for a standard join.
+#    Assuming 'contract_list' is small enough to fit on a single machine.
+
+# Get the list of IDs from the DataFrame (small operation on driver)
+cNoticeId_list = [row['cNoticeId'] for row in contract_list.collect()] 
+
+# 4. Filter the main DataFrame using the list (efficient filtering)
+df_batch = df.filter(col('documentId').isin(cNoticeId_list))
+
+# 5. Write the result (Now the task sent to executors is small and clean)
+# df_batch.write.mode("overwrite").saveAsTable(DEST_ALL_TABLE)
+
+# COMMAND ----------
+
+df_batch.count()
+
+
+# COMMAND ----------
+
+DEST_ALL_TABLE
+
+# COMMAND ----------
+
+df_batch.write.mode("overwrite").saveAsTable(DEST_ALL_TABLE)
+
+# COMMAND ----------
+
+test = df_batch.toPandas()
+
+# COMMAND ----------
+
+

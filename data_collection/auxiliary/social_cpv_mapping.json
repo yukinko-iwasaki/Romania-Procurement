@@ -15,11 +15,7 @@
   "Indoor cleaning products": [
     "398"
   ],
-  "Food": [
-    "31",
-    "32",
-    "33"
-  ],
+  "Food": ["15"],
   "Textile products": [
     "192",
     "395"
@@ -28,7 +24,6 @@
     "331"
   ],
   "Products for arranging/maintaining public green spaces": [
-    "345",
     "43325",
     "1615",
     "4511271",
