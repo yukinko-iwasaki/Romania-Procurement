@@ -5,11 +5,11 @@
 
 SOCIAL_CONTRACT_CRITERIA = 'prd_mega.sprocu92.social_contract_criteria'
 SOCIAL_CRITERIAS = {
-    "A. Social Return (employment of disadvantaged groups) ": "Clauses requiring or incentivising the contractor to employ people from disadvantaged / vulnerable groups (young people, Roma, disabled, etc.) or to create training/apprenticeship places, linked to the specific contract. Or giving priorities to social-economy actors or entities employing disadvantaged people.1 ",
-    "B. Decent Work & Labour Conditions (core and supply chain)": "Clauses about respecting labour law, ILO conventions, transparent and predictable working conditions, health & safety, non-exploitative conditions – both in Romania and in global supply chains. ",
+    "A. Social Return (employment of disadvantaged groups) ": "Clauses requiring or incentivising the contractor to employ people from disadvantaged / vulnerable groups (young people, Roma, disabled, etc.) or to create training/apprenticeship places, linked to the specific contract. Or giving priorities to social-economy actors or entities employing disadvantaged people. ",
+    "B. Decent Work & Labour Conditions ": "Clauses about respecting labour law, ILO conventions, transparent and predictable working conditions, health & safety, non-exploitative conditions – both in Romania and in global supply chains. ",
     "C. Accessibility & Design for All ": "Accessibility for persons with disabilities and older people in goods, services and works – and any “design for all” requirements.",
-    "E. Equality, Diversity & Non-Discrimination ": "Measures promoting gender equality, equal pay, non-discrimination (race, ethnicity, disability, age, etc.), diversity in the workforce, work–life balance",
-    "F. Human Rights & Ethical Trade / Supply-Chain Due Diligence (ISC-style) ": "Explicit “ethical trade”, “responsible sourcing” or “international social conditions” requirements: human rights, due diligence, risk mapping in global supply chains, especially high-risk sectors (textiles, electronics, agro-food, etc.). ",
+    "D. Equality, Diversity & Non-Discrimination ": "Measures promoting gender equality, equal pay, non-discrimination (race, ethnicity, disability, age, etc.), diversity in the workforce, work–life balance",
+    "E Human Rights & Ethical Trade": "Explicit “ethical trade”, “responsible sourcing” or “international social conditions” requirements: human rights, due diligence, risk mapping in global supply chains, especially high-risk sectors (textiles, electronics, agro-food, etc.). ",
 }
 
 def get_prompt(contract_criteria, social_criteria):

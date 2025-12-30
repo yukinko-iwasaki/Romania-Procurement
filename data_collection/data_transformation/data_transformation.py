@@ -89,6 +89,27 @@ create_contract_criteria_table(LIST_TABLE_SOCIAL, SOCIAL_CONTRACT_CRITERIA)
 # COMMAND ----------
 
 # MAGIC %md
+# MAGIC Create Criteria Table for Romania Project (Social Enterprise Focus)
+
+# COMMAND ----------
+
+# MAGIC %ls
+
+# COMMAND ----------
+
+LIST_TABLE_SOCIAL = 'prd_mega.sprocu92.social_enterprise_contract_list'
+SOCIAL_CONTRACT_CRITERIA = 'prd_mega.sprocu92.social_enterprise_contract_criteria'
+
+file_name = os.path.join("..",'auxiliary', 'social_enterprise_cpv_mapping.json')
+# Create a filtered list of the contracts which match the predefined list of CPVs 
+create_contract_list(file_name, LIST_TABLE_SOCIAL)
+
+#Parse the criteria for the filtered list of criterias for Romania Social Protection Project
+create_contract_criteria_table(LIST_TABLE_SOCIAL, SOCIAL_CONTRACT_CRITERIA)
+
+# COMMAND ----------
+
+# MAGIC %md
 # MAGIC Create Criteria Table for Infra Project 
 
 # COMMAND ----------
